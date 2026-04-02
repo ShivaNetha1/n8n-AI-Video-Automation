@@ -1,0 +1,590 @@
+{
+  "name": "YT automation",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 11
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -100,
+        -260
+      ],
+      "id": "affb6ce0-0242-41c0-9eaa-deef6a9b55db",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Give me an idea about [an extremely cute housecat and another adorable animal\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are an AI designed to generate 1 immersive, realistic idea based on a user-provided topic. Your output must be formatted as a 350N array (single line) and follow all the rules below exactly.\n\nOnly return 1 idea at a time.\nThe user will provide a key topic (e.g. \"urban farming,\" \"arctic survival,\" \"street food in Vietnam\")\nThe idea must be under 13 words.\nDescribe an interesting and viral-worthy moment, action, or event related to the provided topic.\nCan be as surreal as you can get, doesn't have to be real-world.\nInvolves a character, NO HUMANS ALLOWED!\nThe caption must be short, punchy, and viral – Try and stay UNDER 100 CHARACTERS!\nInclude one relevant emoji\nInclude exactly 12 hashtags:\n#4_topic_hashtags\n#4_all_time_popular_hashtags\n#4_trending_hashtags\nAll hashtags must be lowercase.\nSet Status to \"for production\"\n\nThe Environment must:\nBe under 20 words\nMatch the action in the Idea exactly\nClearly describe where the event is happening (e.g. rooftop, jungle trail, city alley, frozen lake)\nKey visuals or background details (smoke rising, neon light, parameters: \"options overhead\")\nMain participants (NO HUMANS OR HEDGEHOGS)\nStyle of scene (e.g. cinematic realism, handheld docu-style, aerial tracking shot, macro close-up)\nOk with fictional settings\n\nOUTPUT FORMAT (single-line JSON array using curly brackets):\n\n[\n  {\n    \"Caption\": \"Short viral title with emoji #4_topic_hashtags #4_all_time_popular_hashtags #4_trending_hashtags\",\n    \"Idea\": \"Short idea under 13 words\",\n    \"Environment\": \"Brief vivid setting under 20 words matching the action\",\n    \"Status\": \"for production\"\n  }\n]\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -100,
+        200
+      ],
+      "id": "36aad376-5f75-437f-ac83-8c719fba89bc",
+      "name": "ideas AI Agent",
+      "retryOnFail": false,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -72,
+        420
+      ],
+      "id": "55baa098-4005-457b-8a4e-4673ddb33d00",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "tvqXeFegIMNBfEUP",
+          "name": "OpenAi account 3"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "[\n  {\n    \"Caption\": \"Eagle Lands On Cyclist’s Arm 🦅 #wildmoment #cyclinglife #birdencounter #epicride #wow #naturelovers #reels #amazing #viralvideo #unexpected #adventuretime #closeencounter\",\n    \"Idea\": \"Eagle gracefully lands on cyclist’s arm during mountain trail ride\",\n    \"Environment\": \"Rocky mountain trail, golden sunlight, lone cyclist and eagle, handheld realism\",\n    \"Status\": \"for production\"\n  }\n]\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        48,
+        420
+      ],
+      "id": "5dbd1cd3-3cf3-4eb9-9d78-8a058fd93057",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1GIr546dqFj4R37DTZo7hBR3iOeZhk7SrclZKqkDyyEg",
+          "mode": "list",
+          "cachedResultName": "Untitled spreadsheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1GIr546dqFj4R37DTZo7hBR3iOeZhk7SrclZKqkDyyEg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1GIr546dqFj4R37DTZo7hBR3iOeZhk7SrclZKqkDyyEg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "==ROW()-1",
+            "idea": "={{ $json.output[0].Idea }}",
+            "caption": "={{ $json.output[0].Caption }}",
+            "production": "={{ $json.output[0].Status }}",
+            "environment_prompt": "={{ $json.output[0].Environment }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "idea",
+              "displayName": "idea",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "caption",
+              "displayName": "caption",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "production",
+              "displayName": "production",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "environment_prompt",
+              "displayName": "environment_prompt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "final_output",
+              "displayName": "final_output",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        716,
+        -260
+      ],
+      "id": "15c21ed1-eaaf-4266-8011-941fa819b35e",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ibVot7zEeWfifU2p",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        120,
+        -260
+      ],
+      "id": "d93a8091-ad01-451c-88db-4220b67ed86b",
+      "name": "Wait",
+      "webhookId": "a2665926-d16d-48b1-be81-79c46c876299"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Give me an idea about [an extremely cute housecat and another adorable animal\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are an AI designed to generate 1 immersive, realistic idea based on a user-provided topic. Your output must be formatted as a 350N array (single line) and follow all the rules below exactly.\n\nOnly return 1 idea at a time.\nThe user will provide a key topic (e.g. \"urban farming,\" \"arctic survival,\" \"street food in Vietnam\")\nThe idea must be under 13 words.\nDescribe an interesting and viral-worthy moment, action, or event related to the provided topic.\nCan be as surreal as you can get, doesn't have to be real-world.\nInvolves a character, NO HUMANS ALLOWED!\nThe caption must be short, punchy, and viral – Try and stay UNDER 100 CHARACTERS!\nInclude one relevant emoji\nInclude exactly 12 hashtags:\n#4_topic_hashtags\n#4_all_time_popular_hashtags\n#4_trending_hashtags\nAll hashtags must be lowercase.\nSet Status to \"for production\"\n\nThe Environment must:\nBe under 20 words\nMatch the action in the Idea exactly\nClearly describe where the event is happening (e.g. rooftop, jungle trail, city alley, frozen lake)\nKey visuals or background details (smoke rising, neon light, parameters: \"options overhead\")\nMain participants (NO HUMANS OR HEDGEHOGS)\nStyle of scene (e.g. cinematic realism, handheld docu-style, aerial tracking shot, macro close-up)\nOk with fictional settings\n\nOUTPUT FORMAT (single-line JSON array using curly brackets):\n\n[\n  {\n    \"Caption\": \"Short viral title with emoji #4_topic_hashtags #4_all_time_popular_hashtags #4_trending_hashtags\",\n    \"Idea\": \"Short idea under 13 words\",\n    \"Environment\": \"Brief vivid setting under 20 words matching the action\",\n    \"Status\": \"for production\"\n  }\n]\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        340,
+        -260
+      ],
+      "id": "313d86ab-64c4-43dc-93d7-6953be01ad15",
+      "name": "AI Agent",
+      "retryOnFail": true,
+      "maxTries": 2
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        368,
+        -40
+      ],
+      "id": "efbeca34-2a69-43ac-bb86-ae5d2b89acec",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "WHSRx87fEf9M6FPk",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "[\n  {\n    \"Caption\": \"Eagle Lands On Cyclist’s Arm 🦅 #wildmoment #cyclinglife #birdencounter #epicride #wow #naturelovers #reels #amazing #viralvideo #unexpected #adventuretime #closeencounter\",\n    \"Idea\": \"Eagle gracefully lands on cyclist’s arm during mountain trail ride\",\n    \"Environment\": \"Rocky mountain trail, golden sunlight, lone cyclist and eagle, handheld realism\",\n    \"Status\": \"for production\"\n  }\n]\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        488,
+        -40
+      ],
+      "id": "34765332-a424-4f2e-8b03-c43a778eab31",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Give me a Veo3 prompt for this idea:\n{{ $json.idea }}\n\nThis is the environment:\n{{ $json.environment_prompt }}",
+        "options": {
+          "systemMessage": "SYSTEM PROMPT FOR GOOGLE VEO3 PROMPT AGENT\n\nYou are an AI agent that writes hyper-realistic, cinematic video prompts for Google VEO3. Each prompt should describe a short video clip featuring animals doing cute things. The final video should look surreal, yet realistic.  \nTHERE SHOULD BE NO HUMANS AT ALL.  \nREMEMBER THE FOCUS IS ON CREATING A VIDEO THAT IS SUPER ADORABLE.\n\nREQUIRED STRUCTURE (FILL IN THE BRACKETS BELOW):\n\n[Scene paragraph prompt here]\n\nMain character: [description of character]  \nThey [describe a physical action, shifts position, glances around].  \nTime of Day: [day / night / dusk / etc.]  \nLens: [describe lens]  \nAudio: (implied) [ambient sounds, e.g. lion growls, wind, distant traffic, birdsong]  \nBackground: [brief restatement of what is visible behind them]\n\nRULES FOR PROMPT GENERATION\n\nSingle paragraph only, 750–1500 characters. No line breaks or headings.\n\nNo human character, ever. No character names.  \nDo not include lines of spoken dialogue.  \nCharacter must do something physical, even if subtle (e.g. glance, smirk, pan camera).  \nDo not use selfie-style framing.  \nScene must feel real and cinematic – like a short clip someone might record on a stylized camera.  \nAlways include the five key technical elements: Time of Day, Lens, Film Stock, Audio, and Background.\n\nDO NOT DO THIS:\n\nDon’t name the character.  \nDon’t describe subtitles or on-screen text.  \nDon’t break the paragraph or use formatting.  \nDon’t write vague or abstract scenes – always keep them grounded in physical detail.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        936,
+        -260
+      ],
+      "id": "b9bd281a-3cb7-4449-b964-b5529becbd42",
+      "name": "Prompter AI Agent1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1532,
+        -260
+      ],
+      "id": "828dc3db-ea6c-455a-9318-f6683cf0c245",
+      "name": "Wait1",
+      "webhookId": "aff5f226-126f-4e1d-8ca2-cfe6b4fbdd7c"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.video.url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1972,
+        -260
+      ],
+      "id": "f55a8e75-b42e-4802-9af8-83aa6596470a",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "resource": "video",
+        "operation": "upload",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.youTube",
+      "typeVersion": 1,
+      "position": [
+        2200,
+        -260
+      ],
+      "id": "380cca4f-bdfe-4e6b-96fd-9592e7ca1d49",
+      "name": "Upload a video",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.dev.runwayml.com/v1",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer key_19c032ed9f824b8b29cd67b53dca70fc0605a8e2e066012b936aa908780cb19b28e46cccaff6eb8e5dbaf0d1ea1de2fa06ec3dd5fe7363982f5f4413726fcb4d"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "application/json",
+              "value": "={\"prompt\":\" {{ $json.output }}\"}"
+            }
+          ]
+        },
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 2000
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1320,
+        -520
+      ],
+      "id": "71dbe25a-e518-4b66-b634-b7e90c4c96e9",
+      "name": "create video runway ",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://app-api.pixverse.ai/openapi/v2/video/text/generate",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "sk-1bb169954339d18fafb0feaeb8a9fd14"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1300,
+        -260
+      ],
+      "id": "1e34fe5b-a6ad-4521-91a5-95988acc6863",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "url": "=https://queue.fal.run/fal-ai/veo3/requests/{{ $json.request_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Key 678102ed-55c4-4be1-be84-247d256ce83a:06511824f0db33d23b899c25ad91be9c"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1740,
+        -480
+      ],
+      "id": "ac25c33e-7347-4c26-915c-6725ac581c81",
+      "name": "get video fal"
+    },
+    {
+      "parameters": {
+        "url": "=https://app-api.pixverse.ai/openapi/v2/video/result/{{ $json.request_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "sk-1bb169954339d18fafb0feaeb8a9fd14"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1760,
+        -260
+      ],
+      "id": "cd9827c4-b25f-4e2a-98a1-69784195802d",
+      "name": "get pixverse"
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "ideas AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "ideas AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ideas AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Prompter AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Prompter AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prompter AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "get pixverse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Upload a video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create video runway ": {
+      "main": [
+        []
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get video fal": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "pinData": {},
+  "triggerCount": 0,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}
