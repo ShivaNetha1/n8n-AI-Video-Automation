@@ -205,7 +205,7 @@ Google Sheet updated after upload:
    - Google Sheets OAuth
    - Google Drive OAuth
    - YouTube OAuth
-4. Update your Google Sheet ID in the Sheets nodes (refer to google sheets in main branch)
+4. Update your Google Sheet ID in the Sheets nodes (refer to ./yt demo ideas in main branch)
 5. Activate the workflow
 
 ---
